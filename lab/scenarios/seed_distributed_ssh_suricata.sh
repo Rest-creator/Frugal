@@ -7,7 +7,9 @@
 set -euo pipefail
 
 COMPOSE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../compose" && pwd)"
-OUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../suricata/output" && pwd)"
+OUT_DIR="$(dirname "${BASH_SOURCE[0]}")/../suricata/output"
+mkdir -p "$OUT_DIR"
+OUT_DIR="$(cd "$OUT_DIR" && pwd)"
 
 echo "== Starting victim + Suricata (sharing victim's network namespace) =="
 docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d --build victim suricata

@@ -9,8 +9,9 @@
 set -euo pipefail
 
 COMPOSE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../compose" && pwd)"
-OUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../logs" && pwd)"
+OUT_DIR="$(dirname "${BASH_SOURCE[0]}")/../logs"
 mkdir -p "$OUT_DIR"
+OUT_DIR="$(cd "$OUT_DIR" && pwd)"
 
 echo "== Building and starting lab =="
 docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d --build victim
