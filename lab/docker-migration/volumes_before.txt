@@ -1,0 +1,15 @@
+frugal-lab_victim-auth-log
+single-node_filebeat_etc
+single-node_filebeat_var
+single-node_wazuh-dashboard-config
+single-node_wazuh-dashboard-custom
+single-node_wazuh-indexer-data
+single-node_wazuh_active_response
+single-node_wazuh_agentless
+single-node_wazuh_api_configuration
+single-node_wazuh_etc
+single-node_wazuh_integrations
+single-node_wazuh_logs
+single-node_wazuh_queue
+single-node_wazuh_var_multigroups
+single-node_wazuh_wodles

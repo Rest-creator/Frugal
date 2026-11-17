@@ -1,0 +1,6 @@
+bridge
+frugal-lab_lab-net
+host
+none
+proxy-tier
+single-node_default

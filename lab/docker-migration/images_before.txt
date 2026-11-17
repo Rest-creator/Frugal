@@ -1,0 +1,8 @@
+frugal-lab-victim:latest	fe1898378701	138MB
+frugal-lab-attacker1:latest	baa2d7decfec	127MB
+frugal-lab-attacker3:latest	049ef41fd241	127MB
+frugal-lab-attacker2:latest	d1329eafc503	127MB
+wazuh/wazuh-dashboard:4.12.0	8f5b50fde67a	1.87GB
+wazuh/wazuh-indexer:4.12.0	3691b3b27658	2.41GB
+wazuh/wazuh-manager:4.12.0	dea2fa1e6d50	2.07GB
+wazuh/wazuh-certs-generator:0.0.2	88c4b30ad9b8	218MB
