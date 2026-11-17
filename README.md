@@ -38,7 +38,14 @@ Sprint 1 in progress.
   BOTH an approved verdict AND a matching approval record and refuses
   otherwise (tested: ran deploy before approval existed, blocked with exit
   1). On success it backs up the live tool, writes a `version_ledger.jsonl`
-  entry, and copies the candidate into place. `deploy_actor/rollback.py`
+  entry, and copies the candidate into place — **never onto the pristine
+  reference tool itself**, but onto a gitignored sibling `live.py`
+  (seeded from the reference on first deploy; see ADR-008). A prior
+  version wrote directly onto `lab/tools/baseline-ssh-detector/detect.py`
+  and that mutated state got committed as if it were the pristine
+  baseline, breaking the scenario for a fresh clone — caught and fixed
+  while standing the repo up on `mywealth-vm`.
+  `deploy_actor/rollback.py`
   restores the backup from a ledger entry — tested end to end: deployed
   CAND-001, confirmed the live detector now alerts on the fixture, rolled
   back, confirmed it misses again (old behavior restored), then

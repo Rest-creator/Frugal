@@ -5,5 +5,6 @@ iem/verdicts/
 deploy_actor/approvals/
 deploy_actor/backups/
 deploy_actor/version_ledger.jsonl
+lab/tools/*/live.py
 __pycache__/
 *.pyc

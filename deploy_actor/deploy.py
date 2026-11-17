@@ -67,7 +67,17 @@ def deploy(verdict_id: str):
     # IGM, so deploy.py never hardcodes per-candidate target paths.
     candidate_json_path = candidate_artifact.parent / "candidate.json"
     candidate_meta = load_json(candidate_json_path)
-    live_target = ROOT / candidate_meta["target_tool"]
+    reference_tool = ROOT / candidate_meta["target_tool"]
+
+    # Per ADR-008: deploy.py never writes to the pristine, git-tracked
+    # reference artifact (reference_tool) -- it mutates a sibling live.py
+    # instead, gitignored, seeded from the reference on first deploy. A
+    # prior version of this script overwrote the reference tool directly,
+    # and that mutated state got committed to git as if it were the
+    # pristine starting artifact, corrupting the demo for a fresh clone.
+    live_target = reference_tool.with_name("live.py")
+    if not live_target.exists():
+        shutil.copy2(reference_tool, live_target)
 
     deploy_id = f"DEPLOY-{uuid.uuid4().hex[:12]}"
     deployed_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())

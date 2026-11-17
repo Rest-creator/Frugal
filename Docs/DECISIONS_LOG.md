@@ -78,3 +78,22 @@ compute once provisioned.
 **Status:** Accepted. Follow-up: stand up OpenVAS and full Wazuh
 (manager + indexer + dashboard) on that VM and prove each the same way
 Suricata was proven here (real scenario run, real alert observed).
+
+## ADR-008: deploy_actor never writes to the pristine reference tool; it writes to a sibling `live.py`
+**Date:** 2026-11-17
+**Decision:** `deploy_actor/deploy.py` resolves its target as
+`<reference_tool>.with_name("live.py")` instead of overwriting
+`candidate.json`'s `target_tool` path directly. `live.py` is gitignored
+and seeded from the reference tool on first deploy.
+**Why:** A prior version of `deploy.py` overwrote
+`lab/tools/baseline-ssh-detector/detect.py` in place. That mutated,
+already-improved state was then committed to git as if it were the
+pristine starting artifact — discovered when cloning the repo fresh onto
+`mywealth-vm` and re-running the scenario: it no longer reproduced
+Finding #001 at all, silently contradicting its own printed narrative
+("the baseline detector alerts per-IP only... produces no alert") while
+actually alerting. Separating the git-tracked reference from the
+deploy actor's mutable runtime target closes this permanently: no deploy,
+however many times repeated, can ever change what a fresh clone's
+reference tool does.
+**Status:** Accepted.
