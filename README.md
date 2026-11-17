@@ -88,13 +88,33 @@ Sprint 1 in progress.
   threshold — i.e. it independently detects the same distributed attack,
   without needing IGM's account-correlation fix at all, because its
   threshold already tracks by destination rather than by source.
-- OpenVAS and Wazuh's full stack (indexer + dashboard) deliberately
-  **deferred to a dedicated VM**, by explicit user decision — see
-  ADR-007. OpenVAS's feed sync routinely takes 1-3+ hours on first run;
-  Wazuh's indexer alone typically wants 4GB+ RAM against the 6.4GB
-  available on this dev machine at the time of the decision. Starting
-  either here would have produced an unverifiable "might be working"
-  state, which this project has avoided everywhere else.
+- Wazuh full stack (proven, on `mywealth-vm` — see ADR-007 for why it
+  moved there): manager + indexer + dashboard stood up via Wazuh's own
+  `wazuh-docker` v4.12.0 single-node deployment
+  (`lab/wazuh/setup_wazuh_stack.sh`); indexer cluster health GREEN,
+  manager shipping alerts via Filebeat, dashboard reachable. The victim
+  container enrolled as agent `victim` (`lab/wazuh/enroll_agent.sh`,
+  idempotent, re-run and confirmed). Running the distributed-SSH scenario
+  against the enrolled agent produced real alerts in the manager's
+  `alerts.json` (rule 5760 per attempt), and — genuinely discovered, not
+  staged — **Wazuh's own default brute-force correlation rule did not
+  escalate for the distributed case**, confirmed against a direct
+  single-IP control run that did trigger it. Logged as
+  `candidates/FINDING-002-wazuh-default-ruleset-misses-distributed-ssh.md`:
+  the same structural gap as Finding #001, now independently confirmed
+  against a real production security tool rather than just the
+  hand-written baseline detector.
+  Along the way, fixed: the victim image logging only to stderr (added
+  rsyslog + `/var/log/auth.log`, since a Wazuh agent needs a real file to
+  tail — this also fixed two scenario scripts crashing on a fresh clone).
+  See `lab/wazuh/README.md` for the full setup/enrollment runbook and
+  what's proven vs. not yet done (no custom correlation rule written for
+  Finding #002 yet; dashboard UI not exercised interactively).
+- OpenVAS still deliberately **deferred**, by explicit user decision — see
+  ADR-007. Its feed sync routinely takes 1-3+ hours on first run and pulls
+  several GB; starting it without being able to verify completion would
+  produce an unverifiable "might be working" state, which this project
+  has avoided everywhere else.
 - Not yet implemented: adaptive-test proposal flow, Postgres-backed DB
   roles (current separation of duties is enforced by which script may
   write which file, not DB grants — documented limitation).
@@ -186,10 +206,14 @@ above), not just coded.
    actually works" is not proven yet (see Status above).
 8. ~~Fold in Suricata as a real monitoring/detection layer.~~ Done — see
    Status above.
-9. On a dedicated VM sized for them (per ADR-007): stand up OpenVAS and
-   Wazuh's full stack (manager + indexer + dashboard), and prove each the
-   same way Suricata was proven here (real scenario, real alert observed)
-   before marking either done.
-10. Move the filesystem-based separation of duties and job state onto real
+9. ~~On a dedicated VM (per ADR-007): stand up Wazuh's full stack and
+   prove it.~~ Done — see Status above and `lab/wazuh/README.md`.
+10. Run IGM/IEM against Finding #002 (Wazuh's own correlation gap), same
+    pattern as CAND-001: a custom Wazuh local rule as the candidate,
+    evaluated by replaying this scenario, deployed via deploy_actor to
+    the manager's `local_rules.xml` with rollback.
+11. Stand up OpenVAS on the same VM and prove it (ADR-007), still
+    deferred.
+12. Move the filesystem-based separation of duties and job state onto real
     Postgres (DB roles per ARCHITECTURE.md §3; `orchestrator/state.json`'s
     schema maps directly to a `jobs` table).

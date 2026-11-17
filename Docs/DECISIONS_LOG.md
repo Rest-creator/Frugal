@@ -75,9 +75,11 @@ machine would produce an unverifiable "might be working" state — exactly
 the Potemkin-tooling failure mode this project has avoided everywhere
 else. Development of these two components moves to a VM with adequate
 compute once provisioned.
-**Status:** Accepted. Follow-up: stand up OpenVAS and full Wazuh
-(manager + indexer + dashboard) on that VM and prove each the same way
-Suricata was proven here (real scenario run, real alert observed).
+**Status:** Accepted for OpenVAS (still deferred). Superseded for Wazuh's
+full stack: `mywealth-vm` was provisioned, and the full stack (manager +
+indexer + dashboard) was stood up and proven there on 2026-11-17 — see
+`lab/wazuh/README.md`. OpenVAS follow-up remains: stand it up on the same
+VM and prove it the same way (real scenario, real alert observed).
 
 ## ADR-008: deploy_actor never writes to the pristine reference tool; it writes to a sibling `live.py`
 **Date:** 2026-11-17
