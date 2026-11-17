@@ -1,0 +1,9 @@
+{
+  "id": "CAND-001-distributed-ssh-bruteforce",
+  "finding_id": "FINDING-001-distributed-ssh-bruteforce",
+  "target_tool": "lab/tools/baseline-ssh-detector/detect.py",
+  "diff_or_new_artifact": "candidates/CAND-001-distributed-ssh-bruteforce/detect.py",
+  "rationale": "The current tool only aggregates failed logins per (ip, user). Finding #001's evidence shows 3 source IPs each making 3 failed attempts against the same account (9 total) producing no alert. This candidate adds a second, independent check: total failed attempts for an account across all source IPs, gated on the attempt coming from 2+ distinct IPs so a single legitimate user mistyping their own password repeatedly from one machine is not flagged. The original per-IP check is kept unchanged so existing single-source brute-force detection does not regress.",
+  "created_at": "2026-11-17T07:19:55Z",
+  "generated_by": "igm/generate_candidate.py (deterministic V1, not yet LLM-backed)"
+}

@@ -1,0 +1,89 @@
+name: frugal-lab
+
+networks:
+  lab-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.211.55.0/24
+
+volumes:
+  victim-auth-log:
+
+services:
+  victim:
+    build: ./victim
+    container_name: frugal-victim
+    hostname: victim
+    networks:
+      lab-net:
+        ipv4_address: 10.211.55.10
+    volumes:
+      - victim-auth-log:/var/log
+    # Lab only: no port published to the host, reachable from attacker
+    # containers on lab-net only.
+
+  attacker1:
+    build: ./attacker
+    container_name: frugal-attacker1
+    networks:
+      lab-net:
+        ipv4_address: 10.211.55.21
+    environment:
+      ATTACKER_ID: "1"
+      TARGET_HOST: victim
+      TARGET_USER: labuser
+      ATTEMPTS: "3"
+      SLEEP_SECS: "2"
+    depends_on:
+      - victim
+
+  attacker2:
+    build: ./attacker
+    container_name: frugal-attacker2
+    networks:
+      lab-net:
+        ipv4_address: 10.211.55.22
+    environment:
+      ATTACKER_ID: "2"
+      TARGET_HOST: victim
+      TARGET_USER: labuser
+      ATTEMPTS: "3"
+      SLEEP_SECS: "2"
+    depends_on:
+      - victim
+
+  attacker3:
+    build: ./attacker
+    container_name: frugal-attacker3
+    networks:
+      lab-net:
+        ipv4_address: 10.211.55.23
+    environment:
+      ATTACKER_ID: "3"
+      TARGET_HOST: victim
+      TARGET_USER: labuser
+      ATTEMPTS: "3"
+      SLEEP_SECS: "2"
+    depends_on:
+      - victim
+
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: frugal-suricata
+    # Shares the victim's network namespace so it sees exactly the traffic
+    # arriving at/leaving the host it's protecting (a standard host-based
+    # NIDS deployment pattern) -- avoids needing raw packet capture on the
+    # Docker bridge itself, which requires host-level sudo this lab doesn't
+    # assume it has.
+    network_mode: "service:victim"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_NICE
+    volumes:
+      - ../suricata/rules:/rules:ro
+      - ../suricata/output:/var/log/suricata
+    command: ["-i", "eth0", "-S", "/rules/local.rules", "-l", "/var/log/suricata"]
+    depends_on:
+      - victim

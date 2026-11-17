@@ -1,0 +1,16 @@
+# Custom detection rule for Frugal's distributed-SSH-bruteforce scenario.
+#
+# SSH traffic is encrypted, so Suricata cannot read "Failed password" lines
+# the way lab/tools/baseline-ssh-detector/detect.py does from the log. This
+# is a deliberately different detection surface: a volume/frequency signal
+# at the network layer (repeated connection attempts to port 22 in a short
+# window), independent of and complementary to the log-based detector.
+#
+# track by_dst: counts connection attempts TO the victim regardless of
+# which source IP they came from, so -- like the account-level fix IGM
+# generated for the log-based tool -- this single rule already catches the
+# distributed case (3 attackers, no single source IP needs to exceed the
+# threshold on its own) without needing a later "improvement" cycle. That
+# is a genuine property of this detection surface, not something tuned to
+# match the scenario after the fact.
+alert tcp any any -> any 22 (msg:"FRUGAL SSH connection burst to single host (possible brute force, incl. distributed)"; flow:to_server; flags:S; threshold: type threshold, track by_dst, count 5, seconds 60; classtype:attempted-recon; sid:1000001; rev:1;)

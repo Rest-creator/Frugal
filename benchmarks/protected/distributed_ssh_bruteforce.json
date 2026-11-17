@@ -1,0 +1,12 @@
+{
+  "id": "PROT-001-distributed-ssh-bruteforce",
+  "description": "A detector must flag an account targeted by failed logins from 3+ distinct source IPs within the fixture window, even though no single IP exceeds a naive per-IP threshold.",
+  "fixture_log": "fixtures/distributed_ssh_bruteforce.log",
+  "finding_ref": "FINDING-001-distributed-ssh-bruteforce",
+  "expected": {
+    "min_distinct_source_ips_flagged": 3,
+    "target_user": "labuser",
+    "must_alert": true
+  },
+  "notes": "This is the protected regression test for Finding #001. A candidate that regresses on this (i.e. still fails to alert) must be rejected by IEM regardless of any other improvement it claims."
+}
