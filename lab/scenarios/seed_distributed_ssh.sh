@@ -23,9 +23,10 @@ echo "== Running attackers (3 IPs, 3 attempts each) =="
 docker compose -f "$COMPOSE_DIR/docker-compose.yml" up --build attacker1 attacker2 attacker3
 
 echo "== Capturing victim sshd log =="
-# sshd runs with -e (log to stderr) and no syslog daemon in this minimal
-# image, so the container's own stderr/stdout is the log source of record.
-docker logs frugal-victim > "$OUT_DIR/victim-auth.log" 2>&1
+# sshd logs via syslog; rsyslogd inside the container writes auth/authpriv
+# to /var/log/auth.log, which is also what a Wazuh agent's localfile
+# monitor tails for the same events.
+docker exec frugal-victim cat /var/log/auth.log > "$OUT_DIR/victim-auth.log"
 
 echo "== Captured log: $OUT_DIR/victim-auth.log =="
 echo "== Running baseline detector (threshold=5, per IP) =="
